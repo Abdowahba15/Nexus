@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nexus Premium Game Portal - High-performance gaming experience">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>NEXUS | Premium Game Portal</title>
+    
+    <!-- روابط PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="preload" as="image" href="images/hero-bg.webp">
+    
+    <!-- CSS -->
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --bg-color: #050505;
+            --card-bg: #0f0f0f;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: #333333;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            /* تأثير fade عند التحميل */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        body.loaded {
+            opacity: 1;
+        }
+
+        /* --- UTILITIES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 20px 0;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        header.hidden {
+            transform: translateY(-100%);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 70%);
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('images/hero-pattern.svg') repeat;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.2s;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.4s;
+        }
+
+        /* --- LOADING SKELETON --- */
+        .skeleton {
+            background: linear-gradient(90deg, #0f0f0f 25%, #1a1a1a 50%, #0f0f0f 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .card.skeleton .card-image {
+            height: 200px;
+        }
+
+        .card.skeleton .card-title {
+            height: 28px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .card.skeleton .card-desc {
+            height: 60px;
+            border-radius: 4px;
+        }
+
+        /* --- GAMES GRID --- */
+        .games-section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 60px;
+            border-left: 4px solid var(--text-main);
+            padding-left: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        /* --- GAME CARD DESIGN --- */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--text-main);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .card-image-container {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 16/10;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: var(--transition);
+            /* تحسين عرض الصور */
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .card:hover .card-image {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .card-image.loading {
+            opacity: 0;
+        }
+
+        .card-image.loaded {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-main);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 50px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- NOTIFICATION --- */
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+                    .update-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-main);
+            color: var(--bg-color);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .update-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .update-notification button {
+            margin-right: 15px;
+            padding: 8px 16px;
+            border: none;
+            background: var(--bg-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .update-notification button:hover {
+            background: #333;
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fff, #666);
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero h1 { 
+                font-size: 2.5rem; 
+                padding: 0 10px;
+            }
+            
+            .grid { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+                padding: 0 15px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+                margin-bottom: 40px;
+            }
+            
+            .card-content {
+                padding: 20px;
+            }
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* --- OFFLINE INDICATOR --- */
+        .offline-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #ff4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            z-index: 9998;
+            transition: transform 0.3s ease;
+        }
+
+        .offline-indicator.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Update Notification -->
+    <div class="update-notification" id="updateNotification">
+        <span>New version available!</span>
+        <button onclick="updateApp()">Update Now</button>
+        <button onclick="dismissUpdate()">Later</button>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        You're offline. Showing cached content.
+    </div>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">Nexus<span style="color:#666">Games</span></a>
+                <div class="nav-links">
+                    <a href="#games">Library</a>
+                    <a href="#">About</a>
+                    <a href="#">Support</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Redefine Your Reality</h1>
+                <p>Experience the next generation of gaming with our curated collection of high-performance titles. Minimalist design. Maximum performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Grid -->
+    <section id="games" class="games-section">
+        <div class="container">
+            <h2 class="section-title">Latest Releases</h2>
+            
+            <div class="grid" id="gameGrid">
+                <!-- Cards injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Nexus Game Portal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // ============================================
+        // NEXUS GAMES - OPTIMIZED JAVASCRIPT
+        // ============================================
+
+        // 1. DATA: Game Information
+        const games = [
+            {
+                title: "Cyber Drifter",
+                desc: "An open-world racing experience set in a neon-soaked metropolis.",
+                img: "images/cyberdrifter.jpg",
+                link: "#",
+                download: "#"
+            },
+            {
+                title: "Shadow Protocol",
+                desc: "Tactical espionage action. Infiltrate high-security facilities.",
+                img: "images/shadowprotocol.jpg",
+                link: "#",
+                download: "#"
+            },
+            {
+                title: "Void Walker",
+                desc: "Survive the abyss in this hardcore roguelike adventure.",
+                img: "images/voidwalker.jpg",
+                link: "#",
+                download: "#"
+            },
+            {
+                title: "Neon Chess",
+                desc: "A modern twist on the classic strategy game.",
+                img: "images/neonchess.jpg",
+                link: "#",
+                download: "#"
+            },
+            {
+                title: "Stellar Command",
+                desc: "Build your fleet and conquer the galaxy.",
+                img: "images/stellarcommand.jpg",
+                link: "#",
+                download: "#"
+            },
+            {
+                title: "Urban Jungle",
+                desc: "Parkour through a collapsing city.",
+                img: "images/urbanjungle.jpg",
+                link: "#",
+                download: "#"
+            }
+        ];
+
+        // 2. UTILITIES: Performance helpers
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        // Debounce function for performance
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Throttle function
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        }
+
+        // 3. RENDER: Efficient DOM Injection
+        function createGameCard(game, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.transitionDelay = `${index * 0.1}s`;
+            
+            card.innerHTML = `
+                <div class="card-image-container skeleton">
+                    <img 
+                        data-src="${game.img}" 
+                        alt="${game.title}" 
+                        class="card-image loading"
+                        loading="lazy"
+                    >
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title skeleton"></h3>
+                    <p class="card-desc skeleton"></p>
+                    <div class="btn-group">
+                        <a href="${game.link}" target="_blank" class="btn btn-secondary">View Detail</a>
+                        <a href="${game.download}" class="btn btn-primary">Download</a>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        async function renderGames() {
+            const grid = $('#gameGrid');
+            const fragment = document.createDocumentFragment();
+            
+            // إظهار Skeleton Loading
+            const skeletonCards = games.map(() => createGameCard({
+                title: '', desc: '', img: ''
+            }, 0));
+            skeletonCards.forEach(card => {
+                card.classList.add('skeleton');
+                fragment.appendChild(card);
+            });
+            grid.appendChild(fragment);
+            
+            // استبدال Skeleton بالبطاقات الحقيقية
+            await new Promise(resolve => setTimeout(resolve, 500));
+            grid.innerHTML = '';
+            
+            const newFragment = document.createDocumentFragment();
+            games.forEach((game, index) => {
+                const card = createGameCard(game, index);
+                newFragment.appendChild(card);
+            });
+            
+            grid.appendChild(newFragment);
+            
+            // Initialize lazy loading
+            initLazyLoading();
+            
+            // Initialize observer
+            initObserver();
+            
+            // Initialize image loading
+            initImageLoading();
+        }
+
+        // 4. LAZY LOADING: تحميل الصور عند الحاجة
+        function initLazyLoading() {
+            const images = $$('img[data-src]');
+            
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '100px',
+                threshold: 0.1
+            });
+            
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        // 5. IMAGE LOADING: معالجة تحميل الصور
+        function initImageLoading() {
+            const images = $$('.card-image');
+            
+            images.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.classList.remove('loading');
+                    this.classList.remove('skeleton');
+                    this.classList.add('loaded');
+                    
+                    // إزالة الـ skeleton من الـ container
+                    const container = this.closest('.card-image-container');
+                    if (container) {
+                        container.classList.remove('skeleton');
+                    }
+                });
+                
+                // معالجة الأخطاء
+                img.addEventListener('error', function() {
+                    this.src = 'images/placeholder.jpg';
+                    this.classList.remove('loading');
+                    this.classList.add('loaded');
+                });
+            });
+        }
+
+        // 6. ANIMATION: Smooth Scroll Reveal
+        function initObserver() {
+            const cards = $$('.card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+            
+            cards.forEach(card => observer.observe(card));
+        }
+
+        // 7. PROGRESS BAR
+        function initProgressBar() {
+            const progressBar = $('#progressBar');
+            
+            window.addEventListener('scroll', throttle(() => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                progressBar.style.width = `${scrollPercent}%`;
+            }, 100));
+        }
+
+        // 8. HEADER HIDDEN ON SCROLL
+        function initHeaderScroll() {
+            const header = $('header');
+            let lastScroll = 0;
+            
+            window.addEventListener('scroll', throttle(() => {
+                const currentScroll = window.scrollY;
+                
+                if (currentScroll > 100) {
+                    if (currentScroll > lastScroll) {
+                        header.classList.add('hidden');
+                    } else {
+                        header.classList.remove('hidden');
+                    }
+                }
+                
+                lastScroll = currentScroll;
+            }, 100));
+        }
+
+        // 9. OFFLINE DETECTION
+        function initOfflineDetection() {
+            const offlineIndicator = $('#offlineIndicator');
+            
+            window.addEventListener('offline', () => {
+                offlineIndicator.classList.add('show');
+            });
+            
+            window.addEventListener('online', () => {
+                offlineIndicator.classList.remove('show');
+            });
+            
+            if (!navigator.onLine) {
+                offlineIndicator.classList.add('show');
+            }
+        }
+
+        // 10. INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                registerServiceWorker();
+            }
+            
+            // Initialize features
+            renderGames();
+            initProgressBar();
+            initHeaderScroll();
+            initOfflineDetection();
+            
+            // Fade in body
+            document.body.classList.add('loaded');
+        });
+
+        // 11. SERVICE WORKER REGISTRATION
+        async function registerServiceWorker() {
+            try {
+                const registration = await navigator.serviceWorker.register('service-worker.js');
+                console.log('Service Worker registered:', registration.scope);
+                
+                // التحقق من التحديثات
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            showUpdateNotification();
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.log('Service Worker registration failed:', error);
+            }
+        }
+
+        // 12. UPDATE NOTIFICATION
+        function showUpdateNotification() {
+            const notification = $('#updateNotification');
+            notification.classList.add('show');
+        }
+
+        window.updateApp = function() {
+            caches.delete('nexus-dynamic-v1').then(() => {
+                window.location.reload(true);
+            });
+        };
+
+        window.dismissUpdate = function() {
+            const notification = $('#updateNotification');
+            notification.classList.remove('show');
+        };
+
+        // 13. PERFORMANCE MONITORING
+        if (window.performance) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = window.performance.timing;
+                    const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+                    const domReadyTime = perfData.domContentLoadedEventEnd - perfData.navigationStart;
+                    
+                    console.log(`Page Load Time: ${pageLoadTime}ms`);
+                    console.log(`DOM Ready Time: ${domReadyTime}ms`);
+                }, 0);
+            });
+        }
+    </script>
+</body>
+</html>
