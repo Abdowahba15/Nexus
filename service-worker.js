@@ -7,8 +7,10 @@ const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
-    '/images/icon-192.png',
-    '/images/icon-512.png'
+    '/deadcells.jpg',
+    '/eldenring.jpg',
+    '/silksong.jpg',
+    '/hollowknight.jpg'
 ];
 
 // الملفات المراد تخزينها مؤقتاً مع استراتيجية Network First
