@@ -274,24 +274,27 @@
 
         /* --- BUTTONS --- */
         .btn-group {
-            display: flex;
-            gap: 10px;
-        }
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+}
 
         .btn {
-            flex: 1;
-            padding: 12px 0;
-            text-align: center;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: var(--transition);
-            cursor: pointer;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
+    width: 100%;      /* يخلي الزر ياخد العرض بالكامل */
+    display: block;   /* يمنع أي سلوك أفقي */
+    padding: 12px 0;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: var(--transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
 
         .btn-primary {
             background-color: var(--text-main);
@@ -325,45 +328,7 @@
         }
 
         /* --- NOTIFICATION --- */
-        .update-notification {
-            position: fixed;
-            bottom: 20px;
-                    .update-notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--text-main);
-            color: var(--bg-color);
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            z-index: 9999;
-            opacity: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
 
-        .update-notification.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .update-notification button {
-            margin-right: 15px;
-            padding: 8px 16px;
-            border: none;
-            background: var(--bg-color);
-            color: var(--text-main);
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .update-notification button:hover {
-            background: #333;
-        }
 
         /* --- PROGRESS BAR --- */
         .progress-bar {
@@ -459,11 +424,7 @@
     <div class="progress-bar" id="progressBar"></div>
     
     <!-- Update Notification -->
-    <div class="update-notification" id="updateNotification">
-        <span>New version available!</span>
-        <button onclick="updateApp()">Update Now</button>
-        <button onclick="dismissUpdate()">Later</button>
-    </div>
+
 
     <!-- Offline Indicator -->
     <div class="offline-indicator" id="offlineIndicator">
@@ -507,7 +468,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2023 Nexus Game Portal. All rights reserved.</p>
+            <p>&copy; 2026 Nexus Game Portal. All rights reserved.</p>
         </div>
     </footer>
 
@@ -522,28 +483,28 @@
             {
                 title: "Cyber Drifter",
                 desc: "An open-world racing experience set in a neon-soaked metropolis.",
-                img: "silksong.jpg",
+                img: "images/hollowknight.jpg",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Shadow Protocol",
                 desc: "Tactical espionage action. Infiltrate high-security facilities.",
-                img: "hollowknight.jpg",
+                img: "images/silksong.jpg",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Void Walker",
                 desc: "Survive the abyss in this hardcore roguelike adventure.",
-                img: "eldenring.jpg",
+                img: "images/eldenring.jpg",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Neon Chess",
                 desc: "A modern twist on the classic strategy game.",
-                img: "deadcells.jpg",
+                img: "images/deadcells.jpg",
                 link: "#",
                 download: "#"
             },
@@ -810,21 +771,7 @@
         }
 
         // 12. UPDATE NOTIFICATION
-        function showUpdateNotification() {
-            const notification = $('#updateNotification');
-            notification.classList.add('show');
-        }
 
-        window.updateApp = function() {
-            caches.delete('nexus-dynamic-v1').then(() => {
-                window.location.reload(true);
-            });
-        };
-
-        window.dismissUpdate = function() {
-            const notification = $('#updateNotification');
-            notification.classList.remove('show');
-        };
 
         // 13. PERFORMANCE MONITORING
         if (window.performance) {
