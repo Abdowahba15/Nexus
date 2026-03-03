@@ -328,7 +328,46 @@
         }
 
         /* --- NOTIFICATION --- */
+        .offline-indicator {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
+    background: linear-gradient(145deg, #111, #1c1c1c);
+    border: 1px solid #2a2a2a;
+
+    color: #f5f5f5;
+    padding: 14px 22px;
+    border-radius: 16px;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+
+    opacity: 0;
+    transform: translateY(-25px);
+    transition: all 0.4s ease;
+
+    z-index: 9999;
+}
+
+.offline-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.offline-status {
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
 
         /* --- PROGRESS BAR --- */
         .progress-bar {
@@ -471,7 +510,10 @@
             <p>&copy; 2026 Nexus Game Portal. All rights reserved.</p>
         </div>
     </footer>
-
+<div class="offline-indicator" id="offlineIndicator">
+    <span class="offline-status"></span>
+    <span class="offline-text">You are currently offline — Cached mode active</span>
+</div>
     <!-- JAVASCRIPT -->
     <script>
         // ============================================
@@ -483,42 +525,42 @@
             {
                 title: "Cyber Drifter",
                 desc: "An open-world racing experience set in a neon-soaked metropolis.",
-                img: "hollowknight.jpg",
+                img: "images/hollowknight.webp",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Shadow Protocol",
                 desc: "Tactical espionage action. Infiltrate high-security facilities.",
-                img: "silksong.jpg",
+                img: "images/silksong.webp",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Void Walker",
                 desc: "Survive the abyss in this hardcore roguelike adventure.",
-                img: "eldenring.jpg",
+                img: "images/eldenring.webp",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Neon Chess",
                 desc: "A modern twist on the classic strategy game.",
-                img: "deadcells.jpg",
+                img: "images/deadcells.webp",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Stellar Command",
                 desc: "Build your fleet and conquer the galaxy.",
-                img: "images/stellarcommand.jpg",
+                img: "images/celeste.webp",
                 link: "#",
                 download: "#"
             },
             {
                 title: "Urban Jungle",
                 desc: "Parkour through a collapsing city.",
-                img: "images/urbanjungle.jpg",
+                img: "images/katanazero.webp",
                 link: "#",
                 download: "#"
             }
@@ -744,7 +786,29 @@
             initProgressBar();
             initHeaderScroll();
             initOfflineDetection();
-            
+            const offlineIndicator = document.getElementById('offlineIndicator');
+let offlineTimeout;
+
+function showOfflineMessage() {
+    offlineIndicator.classList.add('show');
+
+    // تختفي بعد 5 دقائق (300000 ملي ثانية)
+    offlineTimeout = setTimeout(() => {
+        offlineIndicator.classList.remove('show');
+    }, 300000);
+}
+
+function hideOfflineMessage() {
+    offlineIndicator.classList.remove('show');
+    clearTimeout(offlineTimeout);
+}
+
+window.addEventListener('offline', showOfflineMessage);
+window.addEventListener('online', hideOfflineMessage);
+
+if (!navigator.onLine) {
+    showOfflineMessage();
+}
             // Fade in body
             document.body.classList.add('loaded');
         });
